@@ -1,22 +1,66 @@
-import { useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { createStyles } from "antd-style";
 import { theme as antdTheme, ThemeConfig } from "antd";
 
-type Theme = 'auto' | 'dark' | 'light';
-
-export default () => {
-
-    const useStyles = createStyles(({ token, css }) => {
-        return {
-            layout: css`
+/**
+ * 主题色枚举
+ */
+export const enum ThemePaletteKey {
+  DARK = 'dark',
+  LIGHT = 'light'
+}
+/**
+ * 主题模式
+ */
+type ThemeMode = ThemePaletteKey.LIGHT | ThemePaletteKey.DARK;
+/**
+ * 主题设置
+ */
+export type ThemeSetting = ThemeMode | 'auto';
+/**
+ * 定义主题色板类型
+ */
+interface ThemePalette {
+  algorithm: ThemeConfig['algorithm'];
+  colorBgContainer: string;
+  colorBgLayout: string;
+  colorText: string;
+  colorBorderSecondary: string;
+}
+/**
+ * 主题色板配置
+ */
+const THEME_PALETTE: Record<ThemePaletteKey, ThemePalette> = {
+  [ThemePaletteKey.DARK]: {
+    algorithm: antdTheme.darkAlgorithm,
+    colorBgContainer: 'rgb(20, 20, 20)',
+    colorBgLayout: 'rgb(10, 10, 10)',
+    colorText: 'rgba(255, 255, 255, 0.85)',
+    colorBorderSecondary: '#303030'
+  },
+  [ThemePaletteKey.LIGHT]: {
+    algorithm: antdTheme.defaultAlgorithm,
+    colorBgContainer: '#ffffff',
+    colorBgLayout: '#f5f5f5',
+    colorText: 'rgba(0, 0, 0, 0.88)',
+    colorBorderSecondary: '#f0f0f0'
+  },
+};
+/**
+ * 样式生成器
+ */
+const useStyles = createStyles(({ token, css }, props: { themeMode: ThemeMode }) => {
+  const palette = THEME_PALETTE[props.themeMode] || THEME_PALETTE[ThemePaletteKey.LIGHT];
+  return {
+    layout: css`
       width: 100%;
       height: 100vh;
       display: flex;
-      background: ${token.colorBgContainer};
+      background: ${palette.colorBgContainer};
       overflow: hidden;
     `,
-            side: css`
-      background: ${token.colorBgLayout};
+    side: css`
+      background: ${palette.colorBgLayout};
       width: 280px;
       height: 100%;
       display: flex;
@@ -24,7 +68,7 @@ export default () => {
       padding: 0 12px;
       box-sizing: border-box;
     `,
-            logo: css`
+    logo: css`
       display: flex;
       align-items: center;
       justify-content: start;
@@ -35,11 +79,11 @@ export default () => {
 
       span {
         font-weight: bold;
-        color: ${token.colorText};
+        color: ${palette.colorText};
         font-size: 16px;
       }
     `,
-            conversations: css`
+    conversations: css`
       overflow-y: auto;
       margin-top: 12px;
       padding: 0;
@@ -48,14 +92,14 @@ export default () => {
         padding-inline-start: 0;
       }
     `,
-            sideFooter: css`
-      border-top: 1px solid ${token.colorBorderSecondary};
+    sideFooter: css`
+      border-top: 1px solid ${palette.colorBorderSecondary};
       height: 40px;
       display: flex;
       align-items: center;
       justify-content: space-between;
     `,
-            chat: css`
+    chat: css`
       height: 100%;
       width: calc(100% - 240px);
       overflow: auto;
@@ -72,7 +116,7 @@ export default () => {
         background-position: bottom;
       }
     `,
-            startPage: css`
+    startPage: css`
       display: flex;
       width: 100%;
       max-width: 840px;
@@ -80,36 +124,120 @@ export default () => {
       align-items: center;
       height: 100%;
     `,
-            agentName: css`
+    agentName: css`
       margin-block-start: 25%;
       font-size: 32px;
       margin-block-end: 38px;
       font-weight: 600;
+      color: ${palette.colorText};
     `,
-            chatList: css`
+    chatList: css`
       display: flex;
       align-items: center;
       width: 100%;
       height: 100%;
       flex-direction: column;
       justify-content: space-between;
+      color: ${palette.colorText};
     `,
-        };
-    });
+  };
+});
 
-    const { styles } = useStyles();
-    const [themeConfig, setThemeConfig] = useState<ThemeConfig>();
-    const changeTheme = (theme: string) => {
-        switch (theme) {
-            case 'auto':
-            case 'light':
-                setThemeConfig({ algorithm: antdTheme.defaultAlgorithm });
-                break;
-            case 'dark':
-                setThemeConfig({ algorithm: antdTheme.darkAlgorithm });
-                break;
-        }
+/**
+ * 从本地存储获取主题
+ * @returns 
+ */
+const getThemeFromLocalStorage = (): ThemeSetting => {
+  if (typeof localStorage !== 'undefined') {
+    return (localStorage.getItem('theme-setting') ?? 'auto') as ThemeSetting;
+  }
+  return 'auto';
+};
+
+/**
+ * 主题设置存储到本地
+ * @param theme 
+ */
+const setThemeToLocalStorage = (theme: ThemeSetting) => {
+  // 可以添加持久化存储
+  if (typeof localStorage !== 'undefined') {
+    localStorage.setItem('theme-setting', theme);
+  }
+}
+
+/**
+ * 获取系统主题
+ * @returns 
+ */
+const getSystemTheme = (): ThemeMode => {
+  if (typeof window !== 'undefined' && window.matchMedia) {
+    return window.matchMedia('(prefers-color-scheme: dark)').matches
+      ? ThemePaletteKey.DARK
+      : ThemePaletteKey.LIGHT;
+  }
+  return ThemePaletteKey.LIGHT;
+};
+
+/**
+ * 主题
+ */
+interface ThemeModelReturn {
+  styles: ReturnType<typeof useStyles>['styles'];
+  themeConfig: ThemeConfig;
+  currentTheme: ThemeMode;
+  themeSetting: ThemeSetting;
+  changeTheme: (theme: ThemeSetting) => void;
+}
+
+export default (): ThemeModelReturn => {
+
+  // 主题设置（auto/light/dark）
+  const [themeSetting, setThemeSetting] = useState<ThemeSetting>(getThemeFromLocalStorage());
+
+  // 计算当前实际主题
+  const currentTheme = useMemo((): ThemeMode => {
+    if (themeSetting === 'auto') {
+      return getSystemTheme();
     }
+    return themeSetting;
+  }, [themeSetting]);
 
-    return { styles, themeConfig, changeTheme }
+  // 生成 Ant Design 主题配置
+  const themeConfig = useMemo((): ThemeConfig => ({
+    algorithm: THEME_PALETTE[currentTheme].algorithm
+  }), [currentTheme]);
+
+  // 监听系统主题变化
+  useState(() => {
+    if (typeof window === 'undefined' || !window.matchMedia) return;
+
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+
+    const handleChange = () => {
+      if (themeSetting === 'auto') {
+        // 当设置为 auto 时，系统主题变化会自动更新 currentTheme
+        // 这里可以触发一个事件或使用其他方式通知组件
+        setThemeSetting(getSystemTheme());
+      }
+    };
+
+    mediaQuery.addEventListener('change', handleChange);
+    return () => mediaQuery.removeEventListener('change', handleChange);
+  });
+
+  // 切换主题
+  const changeTheme = useCallback((theme: ThemeSetting) => {
+    setThemeSetting(theme);
+    // 可以添加持久化存储
+    setThemeToLocalStorage(theme)
+  }, []);
+
+  const { styles } = useStyles({ themeMode: currentTheme });
+  return {
+    styles,
+    themeConfig,
+    currentTheme,
+    themeSetting,
+    changeTheme,
+  };
 }

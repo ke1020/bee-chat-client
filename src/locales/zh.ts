@@ -70,6 +70,10 @@ const zhCN = {
   helloImAntDesignX: '你好，我是 Ant Design X',
   baseOnAntDesign: '基于 Ant Design，AGI 产品界面解决方案，创造更智能的视觉体验~',
   iCanHelp: '我可以帮助：',
+
+  themeAuto: '跟随系统',
+  themeLight: '亮色主题',
+  themeDark: '暗色主题',
 };
 
 export default ({ ...zhCN_antd, ...zhCN, ...zhCN_X } as typeof zhCN_antd & typeof zhCN & typeof zhCN_X)

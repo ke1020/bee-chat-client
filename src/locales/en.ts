@@ -71,6 +71,10 @@ const enUS = {
   baseOnAntDesign:
     'Base on Ant Design, AGI product interface solution, create a better intelligent vision~',
   iCanHelp: 'I can help:',
+
+  themeAuto: 'Follow System',
+  themeLight: 'Light theme',
+  themeDark: 'Dark theme',
 };
 
 export default ({ ...enUS_antd, ...enUS, ...enUS_X } as typeof enUS_antd & typeof enUS & typeof enUS_X);

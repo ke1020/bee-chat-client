@@ -1,5 +1,7 @@
+import { ThemePaletteKey, ThemeSetting } from "@/models/theme";
+import { MoonOutlined, SunOutlined, SyncOutlined } from "@ant-design/icons";
 import { useModel } from "@umijs/max";
-import { Button, Dropdown, Flex, MenuProps } from "antd"
+import { Badge, Button, Dropdown, Flex, MenuProps } from "antd"
 import { useMemo } from "react";
 
 /*
@@ -11,37 +13,41 @@ import { useMemo } from "react";
 
 export default () => {
 
-    const { changeTheme } = useModel('theme');
+    const { themeSetting, changeTheme } = useModel('theme');
+    const { locale } = useModel('local')
 
     const items: MenuProps['items'] = useMemo(() => [
         {
             key: 'auto',
             label: (
                 <a rel="noopener noreferrer">
-                    默认主题
+                    <SyncOutlined /> {locale.themeAuto}
                 </a>
             ),
-            onClick: (e) => changeTheme(e.key)
+            onClick: (e) => changeTheme(e.key as ThemeSetting),
+            extra: themeSetting === 'auto' && <Badge color='blue' />
         },
         {
-            key: 'dark',
+            key: ThemePaletteKey.DARK,
             label: (
                 <a rel="noopener noreferrer">
-                    暗色主题
+                    <MoonOutlined /> {locale.themeDark}
                 </a>
             ),
-            onClick: (e) => changeTheme(e.key)
+            onClick: (e) => changeTheme(e.key as ThemeSetting),
+            extra: themeSetting === ThemePaletteKey.DARK && <Badge color='blue' />
         },
         {
-            key: 'light',
+            key: ThemePaletteKey.LIGHT,
             label: (
                 <a rel="noopener noreferrer">
-                    亮色主题
+                    <SunOutlined /> {locale.themeLight}
                 </a>
             ),
-            onClick: (e) => changeTheme(e.key)
+            onClick: (e) => changeTheme(e.key as ThemeSetting),
+            extra: themeSetting === ThemePaletteKey.LIGHT && <Badge color='blue' />
         },
-    ], [changeTheme]);
+    ], [locale, themeSetting]);
 
     return <Flex>
         <Dropdown menu={{ items }} placement="bottomRight" arrow={{ pointAtCenter: true }}>

@@ -10,12 +10,11 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useXChat } from '@ant-design/x-sdk';
 import { BubbleListRef } from '@ant-design/x/es/bubble';
 import { useModel } from '@umijs/max';
-import locale from '../../locales/local';
 import LanguageSwitch from '@/components/LanguageSwitch';
 import ThemeSwitch from '@/components/ThemeSwitch';
 import Conversations from '@/components/Conversations';
 import Messages from '@/components/Messages';
-
+import locale from '../../locales/local';
 
 // ==================== Context ====================
 const ChatContext = React.createContext<{
@@ -46,7 +45,7 @@ const App = () => {
 
   const { messages, onRequest, isRequesting, abort, onReload } = useModel('chat');
 
-  const { styles, themeConfig, themeMode } = useModel('theme');
+  const { styles, themeConfig } = useModel('theme');
   const [messageApi, contextHolder] = message.useMessage();
   const [deepThink, setDeepThink] = useState<boolean>(true);
 
@@ -55,7 +54,7 @@ const App = () => {
       cursor: 'end',
     });
   }, [senderRef.current]);
-  
+
 
   return (
     <XProvider locale={locale} theme={themeConfig}>
@@ -77,7 +76,7 @@ const App = () => {
                 width={24}
                 height={24}
               />
-              <span>Ant Design X {themeMode}</span>
+              <span>Ant Design X</span>
             </div>
             <Conversations messageApi={messageApi} />
           </div>

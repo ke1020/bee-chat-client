@@ -1,27 +1,32 @@
-import { useState } from "react";
-import local from "@/locales/local";
+import { useCallback, useState } from "react";
 import zh from "@/locales/zh";
 import en from "@/locales/en";
 
 //type Locale = XProviderProps['locale'];
 
-type LocaleType = 'zh' | 'en';
+/**
+ * 支持的语言枚举
+ */
+export const enum LanguageKey {
+    Chinese = 'zh-Hans',
+    English = 'en'
+}
+type LocaleType = LanguageKey.Chinese | LanguageKey.English;
 
 export default () => {
 
-    const [localeType, setLocaleType] = useState<LocaleType>('zh');
+    const [currentLocaleType, setLocaleType] = useState<LocaleType>(LanguageKey.Chinese);
 
     // 如果您的项目使用了antd 那么可以将antd的locale合并传入XProvider
-    // If your project uses antd, you need to merge antd's locale into XProvider
-    const [locale, setLocal] = useState<any>(local);
+    const [locale, setLocal] = useState(zh);
 
-    const changeLocale = (t: LocaleType) => {
-        setLocaleType(t);
-        switch (t) {
-            case 'zh': setLocal(zh); break;
-            case 'en': setLocal(en); break;
+    const changeLocale = useCallback((localType: LocaleType) => {
+        setLocaleType(localType);
+        switch (localType) {
+            case LanguageKey.Chinese: setLocal(zh); break;
+            case LanguageKey.English: setLocal(en); break;
         }
-    };
+    }, [currentLocaleType]);
 
-    return { locale, localeType, changeLocale };
+    return { locale, currentLocaleType, changeLocale };
 }

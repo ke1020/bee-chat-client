@@ -61,7 +61,7 @@ const providerFactory = (conversationKey: string) => {
 export default () => {
 
     const { locale } = useModel('local')
-    const { curConversation } = useModel('converstation');
+    const { curConversation } = useModel('converstation') as { curConversation: string };
 
     const { onRequest, messages, isRequesting, abort, onReload } = useXChat({
         provider: providerFactory(curConversation), // every conversation has its own provider
