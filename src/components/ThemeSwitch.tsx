@@ -19,31 +19,22 @@ export default () => {
     const items: MenuProps['items'] = useMemo(() => [
         {
             key: 'auto',
-            label: (
-                <a rel="noopener noreferrer">
-                    <SyncOutlined /> {locale.themeAuto}
-                </a>
-            ),
+            label: locale.themeAuto,
+            icon: <SyncOutlined />,
             onClick: (e) => changeTheme(e.key as ThemeSetting),
-            extra: themeSetting === 'auto' && <Badge color='blue' />
+            extra: themeSetting === 'auto' && <Badge color='blue' />,
         },
         {
             key: ThemePaletteKey.DARK,
-            label: (
-                <a rel="noopener noreferrer">
-                    <MoonOutlined /> {locale.themeDark}
-                </a>
-            ),
+            label: locale.themeDark,
+            icon: <MoonOutlined />,
             onClick: (e) => changeTheme(e.key as ThemeSetting),
             extra: themeSetting === ThemePaletteKey.DARK && <Badge color='blue' />
         },
         {
             key: ThemePaletteKey.LIGHT,
-            label: (
-                <a rel="noopener noreferrer">
-                    <SunOutlined /> {locale.themeLight}
-                </a>
-            ),
+            label: locale.themeLight,
+            icon: <SunOutlined />,
             onClick: (e) => changeTheme(e.key as ThemeSetting),
             extra: themeSetting === ThemePaletteKey.LIGHT && <Badge color='blue' />
         },

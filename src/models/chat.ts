@@ -1,3 +1,4 @@
+import { AiChatLocale } from "@/locales/typings";
 import { DeepSeekChatProvider, DefaultMessageInfo, SSEFields, useXChat, XModelMessage, XModelParams, XModelResponse, XRequest } from "@ant-design/x-sdk";
 import { useModel } from "@umijs/max";
 
@@ -60,7 +61,7 @@ const providerFactory = (conversationKey: string) => {
  */
 export default () => {
 
-    const { locale } = useModel('local')
+    const { locale } = useModel('local') as { locale: AiChatLocale }
     const { curConversation } = useModel('converstation') as { curConversation: string };
 
     const { onRequest, messages, isRequesting, abort, onReload } = useXChat({

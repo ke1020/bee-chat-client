@@ -1,5 +1,6 @@
 import enUS_antd from 'antd/locale/en_US';
 import enUS_X from '@ant-design/x/locale/en_US';
+import { AiChatLocale } from './typings';
 
 const enUS = {
   whatIsAntDesignX: 'What is Ant Design X?',
@@ -77,4 +78,4 @@ const enUS = {
   themeDark: 'Dark theme',
 };
 
-export default ({ ...enUS_antd, ...enUS, ...enUS_X } as typeof enUS_antd & typeof enUS & typeof enUS_X);
+export default ({ ...enUS_antd, ...enUS, ...enUS_X } as AiChatLocale);

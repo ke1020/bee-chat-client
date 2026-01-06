@@ -1,5 +1,6 @@
 import zhCN_antd from 'antd/locale/zh_CN';
 import zhCN_X from '@ant-design/x/locale/zh_CN';
+import { AiChatLocale } from './typings';
 
 const zhCN = {
   whatIsAntDesignX: '什么是 Ant Design X？',
@@ -76,4 +77,4 @@ const zhCN = {
   themeDark: '暗色主题',
 };
 
-export default ({ ...zhCN_antd, ...zhCN, ...zhCN_X } as typeof zhCN_antd & typeof zhCN & typeof zhCN_X)
+export default ({ ...zhCN_antd, ...zhCN, ...zhCN_X } as AiChatLocale)

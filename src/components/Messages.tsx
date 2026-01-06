@@ -5,9 +5,10 @@ import XMarkdown from "@ant-design/x-markdown";
 import { SyncOutlined } from "@ant-design/icons";
 import React from "react";
 import { BubbleListRef } from "@ant-design/x/es/bubble";
-import { useXChat, XModelMessage } from "@ant-design/x-sdk";
+import { MessageInfo, useXChat, XModelMessage } from "@ant-design/x-sdk";
 import '@ant-design/x-markdown/themes/light.css';
 import '@ant-design/x-markdown/themes/dark.css';
+import { SenderRef } from "@ant-design/x/es/sender";
 
 const Footer: React.FC<{
     id?: string;
@@ -71,6 +72,7 @@ const getRole = (className: string, chatContext: React.Context<{
 
 interface MessagesProps {
     listRef: React.RefObject<BubbleListRef>;
+    senderRef: React.RefObject<SenderRef>;
     chatContext: React.Context<{
         onReload?: ReturnType<typeof useXChat>["onReload"];
     }>;
@@ -87,9 +89,12 @@ export default (props: MessagesProps) => {
         <Bubble.List
             ref={props.listRef}
             style={{
-                height: 'calc(100% - 160px)',
+                //height: `calc(100% - 160px)`,
+                // flex: 1 表示占据剩余空间 （父元素需 { display: 'flex', flexDirection: 'column', height: '100vh' }）
+                flex: 1,
+                overflow: 'auto'
             }}
-            items={messages?.map((i: XModelMessage) => ({
+            items={messages?.map((i: MessageInfo<XModelMessage>) => ({
                 ...i.message,
                 key: i.id,
                 status: i.status,
@@ -98,7 +103,7 @@ export default (props: MessagesProps) => {
             }))}
             styles={{
                 root: {
-                    marginBlockEnd: 24,
+                    marginBlockEnd: 12,
                 },
                 bubble: { maxWidth: 840 },
             }}

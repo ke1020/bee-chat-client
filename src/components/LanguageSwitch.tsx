@@ -1,34 +1,21 @@
-import { LanguageKey } from "@/models/local";
 import { useModel } from "@umijs/max"
 import { Badge, Button, Dropdown, Flex, MenuProps } from "antd"
 import { useMemo } from "react";
 
 export default () => {
 
-    const { currentLocaleType, changeLocale } = useModel('local');
+    const { currentLanguage, languageConfigs, changeLocale } = useModel('local');
 
-    const menuItems: MenuProps['items'] = useMemo(() => [
-        {
-            key: LanguageKey.Chinese,
-            label: (
-                <a rel="noopener noreferrer">
-                    简体中文
-                </a>
-            ),
-            onClick: () => changeLocale(LanguageKey.Chinese),
-            extra: currentLocaleType === LanguageKey.Chinese && <Badge color='blue' />
-        },
-        {
-            key: LanguageKey.English,
-            label: (
-                <a rel="noopener noreferrer">
-                    English
-                </a>
-            ),
-            onClick: () => changeLocale(LanguageKey.English),
-            extra: currentLocaleType === LanguageKey.English && <Badge color='blue' />
-        }
-    ], [currentLocaleType]);
+    const menuItems: MenuProps['items'] = useMemo(() => Object.values(languageConfigs).map(x => ({
+        key: x.key,
+        label: (
+            <a rel="noopener noreferrer">
+                {x.label}
+            </a>
+        ),
+        onClick: () => changeLocale(x.key),
+        extra: currentLanguage === x.key && <Badge color='blue' />,
+    })), [currentLanguage]);
 
     return <Flex>
         <Dropdown menu={{ items: menuItems }} placement="bottomRight" arrow={{ pointAtCenter: true }}>

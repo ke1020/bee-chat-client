@@ -1,6 +1,7 @@
 import { useCallback, useMemo, useState } from "react";
 import { createStyles } from "antd-style";
 import { theme as antdTheme, ThemeConfig } from "antd";
+import store from "store2";
 
 /**
  * 主题色枚举
@@ -142,14 +143,14 @@ const useStyles = createStyles(({ token, css }, props: { themeMode: ThemeMode })
     `,
   };
 });
-
+const THEME_SETTING_KEY = 'theme-setting';
 /**
  * 从本地存储获取主题
  * @returns 
  */
-const getThemeFromLocalStorage = (): ThemeSetting => {
-  if (typeof localStorage !== 'undefined') {
-    return (localStorage.getItem('theme-setting') ?? 'auto') as ThemeSetting;
+const getThemeFromStorage = (): ThemeSetting => {
+  if (store.has(THEME_SETTING_KEY)) {
+    return store.get(THEME_SETTING_KEY) as ThemeSetting;
   }
   return 'auto';
 };
@@ -158,11 +159,8 @@ const getThemeFromLocalStorage = (): ThemeSetting => {
  * 主题设置存储到本地
  * @param theme 
  */
-const setThemeToLocalStorage = (theme: ThemeSetting) => {
-  // 可以添加持久化存储
-  if (typeof localStorage !== 'undefined') {
-    localStorage.setItem('theme-setting', theme);
-  }
+const setThemeToStorage = (theme: ThemeSetting) => {
+  store.set(THEME_SETTING_KEY, theme)
 }
 
 /**
@@ -181,7 +179,7 @@ const getSystemTheme = (): ThemeMode => {
 /**
  * 主题
  */
-interface ThemeModelReturn {
+interface UseThemeReturn {
   styles: ReturnType<typeof useStyles>['styles'];
   themeConfig: ThemeConfig;
   currentTheme: ThemeMode;
@@ -189,10 +187,10 @@ interface ThemeModelReturn {
   changeTheme: (theme: ThemeSetting) => void;
 }
 
-export default (): ThemeModelReturn => {
+export default (): UseThemeReturn => {
 
   // 主题设置（auto/light/dark）
-  const [themeSetting, setThemeSetting] = useState<ThemeSetting>(getThemeFromLocalStorage());
+  const [themeSetting, setThemeSetting] = useState<ThemeSetting>(getThemeFromStorage());
 
   // 计算当前实际主题
   const currentTheme = useMemo((): ThemeMode => {
@@ -229,7 +227,7 @@ export default (): ThemeModelReturn => {
   const changeTheme = useCallback((theme: ThemeSetting) => {
     setThemeSetting(theme);
     // 可以添加持久化存储
-    setThemeToLocalStorage(theme)
+    setThemeToStorage(theme)
   }, []);
 
   const { styles } = useStyles({ themeMode: currentTheme });
