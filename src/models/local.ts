@@ -3,7 +3,6 @@ import { EmptyObject } from "antd/lib/_util/type";
 import { useCallback, useEffect, useRef, useState } from "react";
 import store from "store2";
 
-
 /**
  * 支持的语言枚举
  */

@@ -1,6 +1,5 @@
 import { Suggestion } from "@ant-design/x";
 import { GetProp } from "antd";
-import { useState } from "react";
 
 type SuggestionItems = Exclude<GetProp<typeof Suggestion, 'items'>, () => void>;
 
@@ -27,7 +26,5 @@ const suggestions: SuggestionItems = [
 
 export default () => {
 
-    const [suggestion, setSuggestion] = useState<string>('')
-
-    return { suggestion, suggestions, setSuggestion }
+    return { suggestions }
 }

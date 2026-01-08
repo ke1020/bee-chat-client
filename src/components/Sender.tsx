@@ -1,11 +1,13 @@
-import { CloudUploadOutlined, OpenAIOutlined, PaperClipOutlined } from "@ant-design/icons";
-import { Attachments, Sender, Suggestion } from "@ant-design/x";
+import { OpenAIOutlined, PaperClipOutlined } from "@ant-design/icons";
+import { Sender, Suggestion } from "@ant-design/x";
 import { useModel } from "@umijs/max";
 import { clsx } from 'clsx';
 import { Button, Flex } from "antd";
 import { useState } from "react";
 import { SenderRef } from "@ant-design/x/es/sender";
 import { BubbleListRef } from "@ant-design/x/es/bubble";
+import Uploader from "./Uploader";
+import Prompts from "./Prompts";
 
 interface SenderProps {
     senderRef: React.RefObject<SenderRef>;
@@ -16,41 +18,21 @@ export default (props: SenderProps) => {
 
     const { curConversation, setActiveConversation } = useModel('converstation');
     const { messages, onRequest, isRequesting, abort } = useModel('chat');
-    const { suggestion, suggestions, setSuggestion } = useModel('suggestions')
+    const { suggestions } = useModel('suggestions')
     const { styles } = useModel('theme');
     const { locale } = useModel('local');
-    const { attachmentsOpen, setAttachmentsOpen, attachedFiles, setAttachedFiles } = useModel('files');
+    const { attachmentsOpen, setAttachmentsOpen } = useModel('files');
     const [deepThink, setDeepThink] = useState<boolean>(true);
+    const [suggestion, setSuggestion] = useState<string>('')
 
     const senderHeader = (
         <Sender.Header
             title={locale.uploadFile}
             open={attachmentsOpen}
             onOpenChange={setAttachmentsOpen}
-            styles={{ content: { padding: 0 } }}
+            styles={{ content: { padding: 10 } }}
         >
-            <Attachments
-                overflow="scrollY"
-                styles={{
-                    list: {
-                        maxHeight: 200
-                    }
-                }}
-                multiple={true}
-                maxCount={50}
-                beforeUpload={() => false}
-                items={attachedFiles}
-                onChange={(info) => setAttachedFiles(info.fileList)}
-                placeholder={(type) =>
-                    type === 'drop'
-                        ? { title: locale.dropFileHere }
-                        : {
-                            icon: <CloudUploadOutlined />,
-                            title: locale.uploadFiles,
-                            description: locale.clickOrDragFilesToUpload,
-                        }
-                }
-            />
+            <Uploader maxCount={50} />
         </Sender.Header>
     );
 
@@ -62,6 +44,9 @@ export default (props: SenderProps) => {
         {messages.length === 0 && (
             <div className={styles.agentName}>{locale.agentName}</div>
         )}
+        <div style={{ marginBottom: 10 }}>
+            <Prompts />
+        </div>
         <Suggestion
             items={suggestions}
             onSelect={(itemVal) => {
@@ -85,6 +70,7 @@ export default (props: SenderProps) => {
                     loading={isRequesting}
                     onKeyDown={onKeyDown}
                     onChange={(nextVal) => {
+
                         if (nextVal === '/') {
                             onTrigger();
                         } else if (!nextVal) {
