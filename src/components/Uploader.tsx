@@ -16,19 +16,18 @@ const getBase64 = (file: FileType): Promise<string> =>
         reader.onerror = (error) => reject(error);
     });
 
-interface UploaderProps {
-    maxCount?: number;
-    action?: string;
+interface UploaderProps extends UploadProps {
+    setFileList: React.Dispatch<React.SetStateAction<UploadFile<any>[]>>;
 }
 
 export default (props: UploaderProps) => {
 
-    const action = props.action || "https://660d2bd96ddfa2943b33731c.mockapi.io/api/upload";
+    const action = "https://660d2bd96ddfa2943b33731c.mockapi.io/api/upload";
     const maxCount = props.maxCount || 1;
     const { locale } = useModel('local')
     const [previewOpen, setPreviewOpen] = useState(false);
     const [previewImage, setPreviewImage] = useState('');
-    const [fileList, setFileList] = useState<UploadFile[]>([]); // 初始化为空数组
+    const fileList = props.fileList || [];
 
     const onPreview = async (file: UploadFile) => {
         if (!file.url && !file.preview) {
@@ -40,7 +39,7 @@ export default (props: UploaderProps) => {
     };
 
     const onChange: UploadProps['onChange'] = ({ fileList: newFileList }) =>
-        setFileList(newFileList);
+        props.setFileList(newFileList);
 
     const uploadButton = (
         <button style={{ border: 0, background: 'none' }} type="button">

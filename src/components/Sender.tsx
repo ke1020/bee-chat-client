@@ -2,12 +2,13 @@ import { OpenAIOutlined, PaperClipOutlined } from "@ant-design/icons";
 import { Sender, Suggestion } from "@ant-design/x";
 import { useModel } from "@umijs/max";
 import { clsx } from 'clsx';
-import { Button, Flex } from "antd";
+import { Button, Flex, UploadFile } from "antd";
 import { useState } from "react";
 import { SenderRef } from "@ant-design/x/es/sender";
 import { BubbleListRef } from "@ant-design/x/es/bubble";
 import Uploader from "./Uploader";
 import Prompts from "./Prompts";
+import { SkillType } from "@ant-design/x/es/sender/interface";
 
 interface SenderProps {
     senderRef: React.RefObject<SenderRef>;
@@ -24,6 +25,8 @@ export default (props: SenderProps) => {
     const { attachmentsOpen, setAttachmentsOpen } = useModel('files');
     const [deepThink, setDeepThink] = useState<boolean>(true);
     const [suggestion, setSuggestion] = useState<string>('')
+    const [skill, setSkill] = useState<SkillType>();
+    const [fileList, setFileList] = useState<UploadFile<any>[]>([]);
 
     const senderHeader = (
         <Sender.Header
@@ -32,7 +35,7 @@ export default (props: SenderProps) => {
             onOpenChange={setAttachmentsOpen}
             styles={{ content: { padding: 10 } }}
         >
-            <Uploader maxCount={50} />
+            <Uploader maxCount={50} fileList={fileList} setFileList={setFileList} />
         </Sender.Header>
     );
 
@@ -49,8 +52,10 @@ export default (props: SenderProps) => {
         </div>
         <Suggestion
             items={suggestions}
-            onSelect={(itemVal) => {
-                setSuggestion(`[${itemVal}]:`);
+            onSelect={() => {
+                //setSuggestion(`[${itemVal}]:`);
+                setSkill({ value: 'asr', title: '语音识别', closable: true });
+                props.senderRef.current?.clear?.();
             }}
             styles={{ content: { width: '100%' } }}
         >
@@ -64,12 +69,16 @@ export default (props: SenderProps) => {
                     suffix={false}
                     ref={props.senderRef}
                     key={curConversation}
-                    //slotConfig={slotConfig}
+                    skill={skill}
                     header={senderHeader}
                     value={suggestion}
                     loading={isRequesting}
                     onKeyDown={onKeyDown}
-                    onChange={(nextVal) => {
+                    onChange={(nextVal, e, s, skill) => {
+                        if (skill) {
+                            setSuggestion(nextVal);
+                            return;
+                        }
 
                         if (nextVal === '/') {
                             onTrigger();
@@ -89,6 +98,18 @@ export default (props: SenderProps) => {
                         props.listRef.current?.scrollTo({ top: 'bottom' });
                         setActiveConversation(curConversation);
                         props.senderRef.current?.clear?.();
+                    }}
+                    onPasteFile={(files: FileList) => {
+                        const f: UploadFile<any>[] = [];
+                        for (let i = 0; i < files.length; i++) {
+                            f.push({
+                                uid: i.toString(),
+                                name: files[i].name,
+                                fileName: files[i].name,
+                                originFileObj: files[i],
+                            });
+                        }
+                        setFileList(f);
                     }}
                     onCancel={() => {
                         abort();
