@@ -76,6 +76,9 @@ const enUS = {
   themeAuto: 'Follow System',
   themeLight: 'Light theme',
   themeDark: 'Dark theme',
+  asr: 'Speech Recognition',
+  tts: 'Text to Speech',
+  fetchSkillsFailed: 'Fetch skills failed',
 };
 
 export default ({ ...enUS_antd, ...enUS, ...enUS_X } as AiChatLocale);

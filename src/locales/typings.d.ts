@@ -73,4 +73,7 @@ type AiChatLocale = XProviderProps['locale'] & {
     themeAuto: string;
     themeLight: string;
     themeDark: string;
+    asr: string;
+    tts: string;
+    fetchSkillsFailed: string;
 };

@@ -1,5 +1,5 @@
 import { useModel } from "@umijs/max";
-import { useMarkdownTheme } from "./x-markdown/utils";
+import { useMarkdownTheme } from "../x-markdown/utils";
 import { Actions, Bubble, BubbleListProps } from "@ant-design/x";
 import XMarkdown from "@ant-design/x-markdown";
 import { SyncOutlined } from "@ant-design/icons";
@@ -81,8 +81,8 @@ interface MessagesProps {
 export default (props: MessagesProps) => {
 
     const [className] = useMarkdownTheme();
-    const { messages } = useModel('chat');
-    const { locale } = useModel('local');
+    const { messages } = useModel('messages');
+    const { locale } = useModel('locales');
 
     return messages?.length !== 0 && (
         /* 🌟 消息列表 */

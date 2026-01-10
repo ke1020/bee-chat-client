@@ -10,9 +10,9 @@ interface ConversationsProps {
 }
 
 export default (props: ConversationsProps) => {
-    const { styles } = useModel('theme');
-    const { locale } = useModel('local');
-    const { messages } = useModel('chat');
+    const { styles } = useModel('themes');
+    const { locale } = useModel('locales');
+    const { messages } = useModel('messages');
     const {
         conversations,
         curConversation,
@@ -21,7 +21,7 @@ export default (props: ConversationsProps) => {
         setCurConversation,
         setConversations,
         initialConversations
-    } = useModel('converstation');
+    } = useModel('converstations');
 
     useEffect(() => {
         initialConversations(locale)

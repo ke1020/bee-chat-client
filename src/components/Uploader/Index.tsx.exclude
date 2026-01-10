@@ -1,10 +1,9 @@
 import { useState } from 'react';
-import { CloudUploadOutlined, PlusOutlined } from '@ant-design/icons';
+import { PlusOutlined } from '@ant-design/icons';
 import { Image, Upload } from 'antd';
 import type { GetProp, UploadFile, UploadProps } from 'antd';
 import { useModel } from '@umijs/max';
-
-const { Dragger } = Upload;
+import { UploadRef } from 'antd/lib/upload/Upload';
 
 type FileType = Parameters<GetProp<UploadProps, 'beforeUpload'>>[0];
 
@@ -18,17 +17,26 @@ const getBase64 = (file: FileType): Promise<string> =>
 
 interface UploaderProps extends UploadProps {
     setFileList: React.Dispatch<React.SetStateAction<UploadFile<any>[]>>;
+    ref: React.MutableRefObject<UploadRef<any>>;
 }
 
 export default (props: UploaderProps) => {
 
-    const action = "https://660d2bd96ddfa2943b33731c.mockapi.io/api/upload";
-    const maxCount = props.maxCount || 1;
-    const { locale } = useModel('local')
+    const {
+        action = "https://660d2bd96ddfa2943b33731c.mockapi.io/api/upload",
+        maxCount = 1,
+        fileList = [],
+        beforeUpload
+    } = props;
+    const { locale } = useModel('locales')
     const [previewOpen, setPreviewOpen] = useState(false);
     const [previewImage, setPreviewImage] = useState('');
-    const fileList = props.fileList || [];
+    const [uploading, setUploading] = useState(false);
 
+    /**
+     * 预览
+     * @param file 
+     */
     const onPreview = async (file: UploadFile) => {
         if (!file.url && !file.preview) {
             file.preview = await getBase64(file.originFileObj as FileType);
@@ -38,8 +46,35 @@ export default (props: UploaderProps) => {
         setPreviewOpen(true);
     };
 
-    const onChange: UploadProps['onChange'] = ({ fileList: newFileList }) =>
+    /**
+     * 上传状态变更
+     * @param info 
+     */
+    const onChange: UploadProps['onChange'] = (info) => {
+        const { fileList: newFileList, file } = info;
+
+        // 更新上传状态
+        if (file.status === 'uploading') {
+            setUploading(true);
+        } else {
+            setUploading(false);
+        }
+
+        // 处理上传成功
+        if (file.status === 'done') {
+            //message.success(`${file.name} 上传成功`);
+            //props.onSuccess?.(file.response, file);
+        }
+
+        // 处理上传错误
+        if (file.status === 'error') {
+            //message.error(`${file.name} 上传失败`);
+            //onError?.(new Error(file.error?.message || '上传失败'));
+        }
+
+        // 触发外部 onChange
         props.setFileList(newFileList);
+    };
 
     const uploadButton = (
         <button style={{ border: 0, background: 'none' }} type="button">
@@ -49,6 +84,7 @@ export default (props: UploaderProps) => {
     );
 
     // 当 fileList 为空时，显示 Dragger
+    /*
     if (fileList.length === 0) {
         return (
             <Dragger
@@ -58,6 +94,7 @@ export default (props: UploaderProps) => {
                 maxCount={maxCount}
                 multiple={maxCount > 1}
                 showUploadList={false}
+                beforeUpload={beforeUpload}
                 style={{ background: 'transparent', border: 'none' }}
             >
                 <p className="ant-upload-drag-icon">
@@ -70,11 +107,13 @@ export default (props: UploaderProps) => {
             </Dragger>
         );
     }
+        */
 
     // 当 fileList 不为空时，显示原来的 picture-card 上传列表
     return (
         <>
             <Upload
+                ref={props.ref}
                 action={action}
                 listType="picture-card"
                 fileList={fileList}
@@ -82,6 +121,7 @@ export default (props: UploaderProps) => {
                 onChange={onChange}
                 maxCount={maxCount}
                 multiple={maxCount > 1}
+                beforeUpload={beforeUpload}
             >
                 {fileList.length >= maxCount ? null : uploadButton}
             </Upload>
@@ -90,8 +130,8 @@ export default (props: UploaderProps) => {
                     styles={{ root: { display: 'none' } }}
                     preview={{
                         open: previewOpen,
-                        //onOpenChange: (visible) => setPreviewOpen(visible),
-                        //afterOpenChange: (visible) => !visible && setPreviewImage(''),
+                        onOpenChange: (visible) => setPreviewOpen(visible),
+                        afterOpenChange: (visible) => !visible && setPreviewImage(''),
                     }}
                     src={previewImage}
                 />

@@ -4,10 +4,11 @@ import React, { useEffect, useRef } from 'react';
 import { useXChat } from '@ant-design/x-sdk';
 import { BubbleListRef } from '@ant-design/x/es/bubble';
 import { useModel } from '@umijs/max';
-import Conversations from '@/components/Conversations';
-import Messages from '@/components/Messages';
-import Toolbar from '@/components/Toolbar';
-import Sender1 from '@/components/Sender';
+import Sender1 from '@/components/Chat/Sender';
+import Conversations from '@/components/Chat/Conversations';
+import Messages from '@/components/Chat/Messages';
+import Toolbar from '@/components/Toolbars/Index';
+
 
 // ==================== Context ====================
 const ChatContext = React.createContext<{
@@ -18,9 +19,9 @@ const App = () => {
   const listRef = useRef<BubbleListRef>(null);
   const senderRef = useRef<GetRef<typeof Sender>>(null);
 
-  const { locale } = useModel('local');
-  const { onReload } = useModel('chat');
-  const { styles, themeConfig } = useModel('theme');
+  const { locale } = useModel('locales');
+  const { onReload } = useModel('messages');
+  const { styles, themeConfig } = useModel('themes');
 
   const [messageApi, contextHolder] = message.useMessage();
 

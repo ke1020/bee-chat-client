@@ -4,7 +4,7 @@ import { useMemo } from "react";
 
 export default () => {
 
-    const { currentLanguage, languageConfigs, changeLocale } = useModel('local');
+    const { currentLanguage, languageConfigs, changeLocale } = useModel('locales');
 
     const menuItems: MenuProps['items'] = useMemo(() => Object.values(languageConfigs).map(x => ({
         key: x.key,

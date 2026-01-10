@@ -61,8 +61,8 @@ const providerFactory = (conversationKey: string) => {
  */
 export default () => {
 
-    const { locale } = useModel('local') as { locale: AiChatLocale }
-    const { curConversation } = useModel('converstation') as { curConversation: string };
+    const { locale } = useModel('locales') as { locale: AiChatLocale }
+    const { curConversation } = useModel('converstations') as { curConversation: string };
 
     const { onRequest, messages, isRequesting, abort, onReload } = useXChat({
         provider: providerFactory(curConversation), // every conversation has its own provider

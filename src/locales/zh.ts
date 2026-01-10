@@ -75,6 +75,11 @@ const zhCN = {
   themeAuto: '跟随系统',
   themeLight: '亮色主题',
   themeDark: '暗色主题',
+  asr: '语音识别',
+  tts: '文本转语音',
+
+  // skills
+  fetchSkillsFailed: '获取技能列表失败',
 };
 
 export default ({ ...zhCN_antd, ...zhCN, ...zhCN_X } as AiChatLocale)

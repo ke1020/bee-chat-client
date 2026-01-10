@@ -1,4 +1,4 @@
-import { ThemePaletteKey, ThemeSetting } from "@/models/theme";
+import { ThemePaletteKey, ThemeSetting } from "@/models/themes";
 import { MoonOutlined, SunOutlined, SyncOutlined } from "@ant-design/icons";
 import { useModel } from "@umijs/max";
 import { Badge, Button, Dropdown, Flex, MenuProps } from "antd"
@@ -13,8 +13,8 @@ import { useMemo } from "react";
 
 export default () => {
 
-    const { themeSetting, changeTheme } = useModel('theme');
-    const { locale } = useModel('local')
+    const { themeSetting, changeTheme } = useModel('themes');
+    const { locale } = useModel('locales')
 
     const items: MenuProps['items'] = useMemo(() => [
         {
