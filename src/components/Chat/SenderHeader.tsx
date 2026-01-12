@@ -22,7 +22,7 @@ export default forwardRef<GetRef<typeof Attachments>, SenderHeaderProps>((props,
         >
             <Attachments
                 ref={ref}
-                action="/api/upload"
+                action="https://localhost:44300/api/upload"
                 beforeUpload={() => true}
                 items={props.fileList}
                 onChange={(info) => props.onFileListChange(info.fileList)}
@@ -36,6 +36,9 @@ export default forwardRef<GetRef<typeof Attachments>, SenderHeaderProps>((props,
                         }
                 }
                 multiple={true}
+                progress={{
+                    format: (percent) => percent && `${Number.parseFloat(percent.toFixed(2))}%`
+                }}
             />
         </Sender.Header>
     );

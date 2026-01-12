@@ -3,7 +3,7 @@ import { useModel } from "@umijs/max";
 import { Spin } from "antd";
 
 export default () => {
-    const { setCurrentSkill, prompts, loading, error } = useModel('prompts')
+    const { setCurrentSkill, skills, loading, error } = useModel('skills')
 
     if (loading) {
         return <Spin />
@@ -15,7 +15,7 @@ export default () => {
 
     return <div>
         <Prompts
-            items={prompts}
+            items={skills}
             onItemClick={(info) => {
                 setCurrentSkill(info.data.key);
             }}

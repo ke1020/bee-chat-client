@@ -21,7 +21,7 @@ export default (props: SenderProps) => {
     const { styles } = useModel('themes');
     const { locale } = useModel('locales');
     const { attachmentsOpen, setAttachmentsOpen } = useModel('files');
-    const { skill, setCurrentSkill, clearSkill } = useModel('prompts');
+    const { skill, setCurrentSkill, clearSkill } = useModel('skills');
 
     const [suggestion, setSuggestion] = useState<string>('');
     const [fileList, setFileList] = useState<UploadFile<any>[]>([]);

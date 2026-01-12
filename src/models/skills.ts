@@ -45,7 +45,7 @@ interface UseSkillsReturn {
     skill: SkillType | undefined;
     setCurrentSkill: (value: string) => void;
     clearSkill: () => void;
-    prompts: PromptsItemType[];
+    skills: PromptsItemType[];
     loading: boolean;
     error: string | null;
     // skillsMap: Record<string, SkillType> | null;
@@ -56,8 +56,8 @@ export default (): UseSkillsReturn => {
     const { locale } = useModel('locales');
     // 获取或设置当前技能
     const [skill, setSkill] = useState<SkillType | undefined>();
-    // 获取或设置提示词（从技能转换提示词）
-    const [prompts, setPrompts] = useState<PromptsItemType[]>([]);
+    // 获取或设置技能列表
+    const [skills, setSkills] = useState<PromptsItemType[]>([]);
     // 缓存技能列表，快速查找技能
     const [skillsMap, setSkillsMap] = useState<Record<string, SkillType> | null>(null);
     // 获取或设置载入状态
@@ -101,13 +101,13 @@ export default (): UseSkillsReturn => {
             setSkillsMap(skills);
 
             // 转换为提示数据
-            const promptsData = Object.values(skills).map((x) => ({
+            const skillsData = Object.values(skills).map((x) => ({
                 key: x.value,
                 description: x.title,
                 icon: getIcon(x.value),
             }));
 
-            setPrompts(promptsData);
+            setSkills(skillsData);
         } catch (err) {
             console.error(locale.fetchSkillsFailed, err);
 
@@ -116,14 +116,14 @@ export default (): UseSkillsReturn => {
             setError(err instanceof Error ? err.message : 'Failed to load skills');
 
             // 设置空状态，避免 UI 错误
-            setPrompts([]);
+            setSkills([]);
             setSkillsMap(null);
         } finally {
             if (isMountedRef.current) {
                 setLoading(false);
             }
         }
-    }, [getIcon]); // ← 移除了 skill 依赖
+    }, [getIcon]);
 
     /**
      * 重新获取数据
@@ -145,9 +145,9 @@ export default (): UseSkillsReturn => {
 
     return {
         skill,
+        skills,
         setCurrentSkill,
         clearSkill,
-        prompts,
         loading,
         error,
         refetch,
