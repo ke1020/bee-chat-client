@@ -1,10 +1,6 @@
-/**
- * AI 对话工具本地化类型定义
- */
-export interface AiChatLocale {
-    /**
-     * 什么是 Ant Design X
-     */
+import { XProviderProps } from "@ant-design/x";
+
+type AiChatLocale = XProviderProps['locale'] & {
     whatIsAntDesignX: string;
     today: string;
     howToQuicklyInstallAndImportComponents: string;
@@ -74,10 +70,10 @@ export interface AiChatLocale {
     baseOnAntDesign: string;
     iCanHelp: string;
 
-    /**
-     * 跟随系统
-     */
     themeAuto: string;
     themeLight: string;
     themeDark: string;
-}
+    asr: string;
+    tts: string;
+    fetchSkillsFailed: string;
+};

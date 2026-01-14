@@ -16,7 +16,8 @@ const MOCK_SKILLS: SkillProps[] = [
     { skill: 'tts', name: '语音合成' },
     { skill: 'ocr', name: '图像识别' },
     { skill: 'translate', name: '翻译' },
-    { skill: 'transcode', name: '音视频转码' }
+    { skill: 'transcode', name: '音视频转码' },
+    { skill: 'convert', name: '格式转换' }
 ];
 
 // 模拟API请求
