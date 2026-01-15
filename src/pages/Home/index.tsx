@@ -21,7 +21,6 @@ import {
   XRequest,
 } from '@ant-design/x-sdk';
 import { Flex, GetRef, message } from 'antd';
-import { createStyles } from 'antd-style';
 import { clsx } from 'clsx';
 import dayjs from 'dayjs';
 import React, { useEffect, useRef, useState } from 'react';
@@ -31,97 +30,6 @@ import { BubbleListRef } from '@ant-design/x/es/bubble';
 import { useMarkdownTheme } from '../../components/x-markdown/utils';
 import { useModel } from '@umijs/max';
 
-const useStyle = createStyles(({ token, css }) => {
-  return {
-    layout: css`
-      width: 100%;
-      height: 100vh;
-      display: flex;
-      background: ${token.colorBgContainer};
-      overflow: hidden;
-    `,
-    side: css`
-      background: ${token.colorBgLayout};
-      width: 280px;
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-      padding: 0 12px;
-      box-sizing: border-box;
-    `,
-    logo: css`
-      display: flex;
-      align-items: center;
-      justify-content: start;
-      padding: 0 24px;
-      box-sizing: border-box;
-      gap: 8px;
-      margin: 24px 0;
-
-      span {
-        font-weight: bold;
-        color: ${token.colorText};
-        font-size: 16px;
-      }
-    `,
-    conversations: css`
-      overflow-y: auto;
-      margin-top: 12px;
-      padding: 0;
-      flex: 1;
-      .ant-conversations-list {
-        padding-inline-start: 0;
-      }
-    `,
-    sideFooter: css`
-      border-top: 1px solid ${token.colorBorderSecondary};
-      height: 40px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    `,
-    chat: css`
-      height: 100%;
-      width: calc(100% - 240px);
-      overflow: auto;
-      box-sizing: border-box;
-      display: flex;
-      flex-direction: column;
-      padding-block: ${token.paddingLG}px;
-      padding-inline: ${token.paddingLG}px;
-      gap: 16px;
-      .ant-bubble-content-updating {
-        background-image: linear-gradient(90deg, #ff6b23 0%, #af3cb8 31%, #53b6ff 89%);
-        background-size: 100% 2px;
-        background-repeat: no-repeat;
-        background-position: bottom;
-      }
-    `,
-    startPage: css`
-      display: flex;
-      width: 100%;
-      max-width: 840px;
-      flex-direction: column;
-      align-items: center;
-      height: 100%;
-    `,
-    agentName: css`
-      margin-block-start: 25%;
-      font-size: 32px;
-      margin-block-end: 38px;
-      font-weight: 600;
-    `,
-    chatList: css`
-      display: flex;
-      align-items: center;
-      width: 100%;
-      height: 100%;
-      flex-direction: column;
-      justify-content: space-between;
-    `,
-  };
-});
-
 // ==================== Context ====================
 const ChatContext = React.createContext<{
   onReload?: ReturnType<typeof useXChat>['onReload'];
@@ -130,6 +38,7 @@ const ChatContext = React.createContext<{
 
 const App = () => {
   const { locale } = useModel('locales');
+  const { styles, themeConfig } = useModel('themes');
 
   const DEFAULT_CONVERSATIONS_ITEMS = [
     {
@@ -305,7 +214,6 @@ const App = () => {
     },
   });
 
-  const { styles } = useStyle();
   const [messageApi, contextHolder] = message.useMessage();
   const [deepThink, setDeepThink] = useState<boolean>(true);
 
@@ -315,7 +223,7 @@ const App = () => {
     });
   }, [senderRef.current]);
   return (
-    <XProvider locale={locale}>
+    <XProvider locale={locale} theme={themeConfig}>
       {contextHolder}
       <ChatContext.Provider value={{ onReload }}>
         <div className={styles.layout}>

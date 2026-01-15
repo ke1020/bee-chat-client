@@ -1,4 +1,5 @@
 import { AiChatLocale } from "@/locales/typings";
+import { XProviderProps } from "@ant-design/x";
 import { EmptyObject } from "antd/lib/_util/type";
 import { useCallback, useEffect, useRef, useState } from "react";
 import store from "store2";
@@ -128,7 +129,7 @@ const loadLocale = async (language: LanguageType): Promise<AiChatLocale | EmptyO
 };
 
 interface UseLocaleReturn {
-    locale: AiChatLocale;
+    locale: AiChatLocale & XProviderProps['locale'];
     currentLanguage: LanguageType;
     isLoading: boolean;
     isReady: boolean; // 添加就绪状态
@@ -189,7 +190,7 @@ export default (): UseLocaleReturn => {
     }, []);
 
     return {
-        locale: locale as AiChatLocale, // 永远不会返回 null
+        locale: locale as AiChatLocale & XProviderProps['locale'], // 永远不会返回 null
         currentLanguage,
         isLoading,
         isReady, // 返回就绪状态
