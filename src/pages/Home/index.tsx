@@ -27,7 +27,6 @@ import React, { useEffect, useRef, useState } from 'react';
 import '@ant-design/x-markdown/themes/light.css';
 import '@ant-design/x-markdown/themes/dark.css';
 import { BubbleListRef } from '@ant-design/x/es/bubble';
-import { useMarkdownTheme } from '../../components/x-markdown/utils';
 import { useModel } from '@umijs/max';
 
 // ==================== Context ====================
@@ -38,7 +37,7 @@ const ChatContext = React.createContext<{
 
 const App = () => {
   const { locale } = useModel('locales');
-  const { styles, themeConfig } = useModel('themes');
+  const { styles, themeConfig, markdownThemeClass } = useModel('themes');
 
   const DEFAULT_CONVERSATIONS_ITEMS = [
     {
@@ -175,7 +174,6 @@ const App = () => {
     user: { placement: 'end' },
   });
 
-  const [className] = useMarkdownTheme();
   const senderRef = useRef<GetRef<typeof Sender>>(null);
   const { conversations, addConversation, setConversations } = useXConversations({
     defaultConversations: DEFAULT_CONVERSATIONS_ITEMS,
@@ -310,7 +308,7 @@ const App = () => {
                     },
                     bubble: { maxWidth: 840 },
                   }}
-                  role={getRole(className)}
+                  role={getRole(markdownThemeClass)}
                 />
               )}
               <div

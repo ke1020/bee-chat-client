@@ -186,6 +186,7 @@ interface UseThemeReturn {
     currentTheme: ThemeMode;
     themeSetting: ThemeSetting;
     changeTheme: (theme: ThemeSetting) => void;
+    markdownThemeClass: string;
 }
 
 export default (): UseThemeReturn => {
@@ -205,6 +206,11 @@ export default (): UseThemeReturn => {
     const themeConfig = useMemo((): ThemeConfig => ({
         algorithm: THEME_PALETTE[currentTheme].algorithm
     }), [currentTheme]);
+
+    // markdown 组件主题样式
+    const markdownThemeClass = useMemo(() => {
+        return currentTheme === ThemePaletteKey.DARK ? 'x-markdown-dark' : 'x-markdown-light';
+    }, [currentTheme]);
 
     // 监听系统主题变化
     useState(() => {
@@ -238,5 +244,6 @@ export default (): UseThemeReturn => {
         currentTheme,
         themeSetting,
         changeTheme,
+        markdownThemeClass
     };
 }
