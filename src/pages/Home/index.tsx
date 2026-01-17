@@ -28,6 +28,7 @@ import '@ant-design/x-markdown/themes/light.css';
 import '@ant-design/x-markdown/themes/dark.css';
 import { BubbleListRef } from '@ant-design/x/es/bubble';
 import { useModel } from '@umijs/max';
+import Toolbars from '@/components/Toolbars';
 
 // ==================== Context ====================
 const ChatContext = React.createContext<{
@@ -288,6 +289,7 @@ const App = () => {
           </div>
           <div className={styles.chat}>
             <div className={styles.chatList}>
+              <Toolbars />
               {messages?.length !== 0 && (
                 /* 🌟 消息列表 */
                 <Bubble.List
