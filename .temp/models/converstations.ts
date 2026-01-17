@@ -1,9 +1,9 @@
-import { useXConversations } from "@ant-design/x-sdk";
-import { useState } from "react";
+import { AiLocale } from "@/locales/typings";
+import { ConversationData, useXConversations } from "@ant-design/x-sdk";
+import { useCallback, useState, useEffect } from "react";
 
-//type Locale = XProviderProps['locale'];
 
-const getConverstations = (locale: any) => [
+const getConversations = (locale: AiLocale): ConversationData[] => [
     {
         key: 'default-0',
         label: locale.whatIsAntDesignX,
@@ -24,20 +24,29 @@ const getConverstations = (locale: any) => [
 /**
  * 会话管理 model
  */
-export default () => {
-    const { conversations, addConversation, setConversations } = useXConversations({
-        defaultConversations: [],
-    });
+const useAiConversations = (locale: AiLocale) => {
+
+    const { conversations, addConversation, setConversations } = useXConversations({});
 
     const [curConversation, setCurConversation] = useState<string>();
-
     const [activeConversation, setActiveConversation] = useState<string>();
 
-    const initialConversations = (locale: any) => {
-        const list = getConverstations(locale)
-        setConversations(list)
-        setCurConversation(list[0].key)
-    };
+    // 避免循环更新
+    const updateConversations = useCallback(() => {
+        if (!locale) return;
+
+        const initialList = getConversations(locale);
+        setConversations(initialList);
+
+        if (!curConversation || !initialList.some(item => item.key === curConversation)) {
+            setCurConversation(initialList[0]?.key);
+        }
+    }, [locale, setConversations]);
+
+    // 监听 locale 变化，更新会话列表
+    useEffect(() => {
+        updateConversations();
+    }, [updateConversations]);
 
     return {
         conversations,
@@ -46,7 +55,8 @@ export default () => {
         addConversation,
         setConversations,
         setCurConversation,
-        setActiveConversation,
-        initialConversations
+        setActiveConversation
     }
 };
+
+export default useAiConversations;
