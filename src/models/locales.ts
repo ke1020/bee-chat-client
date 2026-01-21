@@ -128,7 +128,7 @@ const loadLocale = async (language: LanguageType): Promise<AiChatLocale | EmptyO
     }
 };
 
-interface UseLocaleReturn {
+export interface UseLocaleReturn {
     locale: AiChatLocale & XProviderProps['locale'];
     currentLanguage: LanguageType;
     isLoading: boolean;

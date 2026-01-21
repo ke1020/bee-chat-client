@@ -1,9 +1,8 @@
-import { DeleteOutlined, OpenAIOutlined, SyncOutlined } from '@ant-design/icons';
+import { OpenAIOutlined, SyncOutlined } from '@ant-design/icons';
 import {
   Actions,
   Bubble,
   BubbleListProps,
-  Conversations,
   Sender,
   SenderProps,
   XProvider,
@@ -14,7 +13,6 @@ import {
   DefaultMessageInfo,
   SSEFields,
   useXChat,
-  useXConversations,
   XModelMessage,
   XModelParams,
   XModelResponse,
@@ -22,13 +20,13 @@ import {
 } from '@ant-design/x-sdk';
 import { Flex, GetRef, message } from 'antd';
 import { clsx } from 'clsx';
-import dayjs from 'dayjs';
 import React, { useEffect, useRef, useState } from 'react';
 import '@ant-design/x-markdown/themes/light.css';
 import '@ant-design/x-markdown/themes/dark.css';
 import { BubbleListRef } from '@ant-design/x/es/bubble';
 import { useModel } from '@umijs/max';
 import Toolbars from '@/components/Toolbars';
+import Conversations from '@/components/Chat/Conversations'
 
 // ==================== Context ====================
 const ChatContext = React.createContext<{
@@ -40,23 +38,6 @@ const App = () => {
   const { locale } = useModel('locales');
   const { styles, themeConfig, markdownThemeClass } = useModel('themes');
 
-  const DEFAULT_CONVERSATIONS_ITEMS = [
-    {
-      key: 'default-0',
-      label: locale.whatIsAntDesignX,
-      group: locale.today,
-    },
-    {
-      key: 'default-1',
-      label: locale.howToQuicklyInstallAndImportComponents,
-      group: locale.today,
-    },
-    {
-      key: 'default-2',
-      label: locale.newAgiHybridInterface,
-      group: locale.yesterday,
-    },
-  ];
   const HISTORY_MESSAGES: {
     [key: string]: DefaultMessageInfo<XModelMessage>[];
   } = {
@@ -97,11 +78,18 @@ const App = () => {
     },
     { type: 'text', value: locale.slotTextEnd },
   ];
-  const historyMessageFactory = (conversationKey: string): DefaultMessageInfo<XModelMessage>[] => {
+  const historyMessageFactory = (conversationKey?: string): DefaultMessageInfo<XModelMessage>[] => {
+    if (!conversationKey) {
+      return [];
+    }
     return HISTORY_MESSAGES[conversationKey] || [];
   };
   const providerCaches = new Map<string, DeepSeekChatProvider>();
-  const providerFactory = (conversationKey: string) => {
+  const providerFactory = (conversationKey?: string) => {
+    if (!conversationKey) {
+      return undefined;
+    }
+
     if (!providerCaches.get(conversationKey)) {
       providerCaches.set(
         conversationKey,
@@ -176,16 +164,9 @@ const App = () => {
   });
 
   const senderRef = useRef<GetRef<typeof Sender>>(null);
-  const { conversations, addConversation, setConversations } = useXConversations({
-    defaultConversations: DEFAULT_CONVERSATIONS_ITEMS,
-  });
-  const [curConversation, setCurConversation] = useState<string>(
-    DEFAULT_CONVERSATIONS_ITEMS[0].key,
-  );
-
-  const [activeConversation, setActiveConversation] = useState<string>();
-
   const listRef = useRef<BubbleListRef>(null);
+
+  const { curConversation, setActiveConversation } = useModel('conversations');
 
   // ==================== Runtime ====================
 
@@ -237,55 +218,7 @@ const App = () => {
               />
               <span>Ant Design X</span>
             </div>
-            <Conversations
-              creation={{
-                onClick: () => {
-                  if (messages.length === 0) {
-                    messageApi.error(locale.itIsNowANewConversation);
-                    return;
-                  }
-                  const now = dayjs().valueOf().toString();
-                  addConversation({
-                    key: now,
-                    label: `${locale.newConversation} ${conversations.length + 1}`,
-                    group: locale.today,
-                  });
-                  setCurConversation(now);
-                },
-              }}
-              items={conversations
-                .map(({ key, label, ...other }) => ({
-                  key,
-                  label: key === activeConversation ? `[${locale.curConversation}]${label}` : label,
-                  ...other,
-                }))
-                .sort(({ key }) => (key === activeConversation ? -1 : 0))}
-              className={styles.conversations}
-              activeKey={curConversation}
-              onActiveChange={async (val) => {
-                setCurConversation(val);
-              }}
-              groupable
-              styles={{ item: { padding: '0 8px' } }}
-              menu={(conversation) => ({
-                items: [
-                  {
-                    label: locale.delete,
-                    key: 'delete',
-                    icon: <DeleteOutlined />,
-                    danger: true,
-                    onClick: () => {
-                      const newList = conversations.filter((item) => item.key !== conversation.key);
-                      const newKey = newList?.[0]?.key;
-                      setConversations(newList);
-                      if (conversation.key === curConversation) {
-                        setCurConversation(newKey);
-                      }
-                    },
-                  },
-                ],
-              })}
-            />
+            <Conversations messageApi={messageApi} messages={messages} />
           </div>
           <div className={styles.chat}>
             <div className={styles.chatList}>
