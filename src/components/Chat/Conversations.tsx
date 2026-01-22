@@ -1,25 +1,24 @@
 import { DeleteOutlined } from "@ant-design/icons";
 import { Conversations } from "@ant-design/x";
 import dayjs from "dayjs";
-import { MessageInfo, XModelMessage } from "@ant-design/x-sdk";
 import { useModel } from "@umijs/max";
 import { MessageInstance } from "antd/es/message/interface";
 
 interface ConversationsProps {
-    messages: MessageInfo<XModelMessage>[];
     messageApi: MessageInstance;
 }
 
 export default (props: ConversationsProps) => {
     const { locale } = useModel('locales');
     const { styles } = useModel('themes');
+    const { messages } = useModel('messages');
     const {
         conversations, activeConversation, curConversation, addConversation, setCurConversation, setConversations,
     } = useModel('conversations');
     return <Conversations
         creation={{
             onClick: () => {
-                if (props.messages.length === 0) {
+                if (messages.length === 0) {
                     props.messageApi.error(locale.itIsNowANewConversation);
                     return;
                 }

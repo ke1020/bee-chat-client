@@ -1,22 +1,11 @@
-import { OpenAIOutlined, SyncOutlined } from '@ant-design/icons';
+import { OpenAIOutlined } from '@ant-design/icons';
 import {
-  Actions,
-  Bubble,
-  BubbleListProps,
   Sender,
   SenderProps,
   XProvider,
 } from '@ant-design/x';
-import XMarkdown from '@ant-design/x-markdown';
 import {
-  DeepSeekChatProvider,
-  DefaultMessageInfo,
-  SSEFields,
   useXChat,
-  XModelMessage,
-  XModelParams,
-  XModelResponse,
-  XRequest,
 } from '@ant-design/x-sdk';
 import { Flex, GetRef, message } from 'antd';
 import { clsx } from 'clsx';
@@ -27,44 +16,18 @@ import { BubbleListRef } from '@ant-design/x/es/bubble';
 import { useModel } from '@umijs/max';
 import Toolbars from '@/components/Toolbars';
 import Conversations from '@/components/Chat/Conversations'
+import Messages from '@/components/Chat/Messages';
 
 // ==================== Context ====================
 const ChatContext = React.createContext<{
   onReload?: ReturnType<typeof useXChat>['onReload'];
 }>({});
 
-
 const App = () => {
   const { locale } = useModel('locales');
-  const { styles, themeConfig, markdownThemeClass } = useModel('themes');
-
-  const HISTORY_MESSAGES: {
-    [key: string]: DefaultMessageInfo<XModelMessage>[];
-  } = {
-    'default-1': [
-      {
-        message: { role: 'user', content: locale.howToQuicklyInstallAndImportComponents },
-        status: 'success',
-      },
-      {
-        message: {
-          role: 'assistant',
-          content: locale.aiMessage_2,
-        },
-        status: 'success',
-      },
-    ],
-    'default-2': [
-      { message: { role: 'user', content: locale.newAgiHybridInterface }, status: 'success' },
-      {
-        message: {
-          role: 'assistant',
-          content: locale.aiMessage_1,
-        },
-        status: 'success',
-      },
-    ],
-  };
+  const { styles, themeConfig } = useModel('themes');
+  const { curConversation, setActiveConversation } = useModel('conversations');
+  const { messages, isRequesting, abort, onReload, onRequest } = useModel('messages');
 
   const slotConfig: SenderProps['slotConfig'] = [
     { type: 'text', value: locale.slotTextStart },
@@ -78,121 +41,11 @@ const App = () => {
     },
     { type: 'text', value: locale.slotTextEnd },
   ];
-  const historyMessageFactory = (conversationKey?: string): DefaultMessageInfo<XModelMessage>[] => {
-    if (!conversationKey) {
-      return [];
-    }
-    return HISTORY_MESSAGES[conversationKey] || [];
-  };
-  const providerCaches = new Map<string, DeepSeekChatProvider>();
-  const providerFactory = (conversationKey?: string) => {
-    if (!conversationKey) {
-      return undefined;
-    }
-
-    if (!providerCaches.get(conversationKey)) {
-      providerCaches.set(
-        conversationKey,
-        new DeepSeekChatProvider({
-          request: XRequest<XModelParams, Partial<Record<SSEFields, XModelResponse>>>(
-            'https://api.x.ant.design/api/big_model_glm-4.5-flash',
-            {
-              manual: true,
-              params: {
-                stream: true,
-                model: 'glm-4.5-flash',
-              },
-            },
-          ),
-        }),
-      );
-    }
-    return providerCaches.get(conversationKey);
-  };
-  const Footer: React.FC<{
-    id?: string;
-    content: string;
-    status?: string;
-  }> = ({ id, content, status }) => {
-    const context = React.useContext(ChatContext);
-    const Items = [
-      {
-        key: 'retry',
-        label: locale.retry,
-        icon: <SyncOutlined />,
-        onItemClick: () => {
-          if (id) {
-            context?.onReload?.(id, {
-              userAction: 'retry',
-            });
-          }
-        },
-      },
-      {
-        key: 'copy',
-        actionRender: <Actions.Copy text={content} />,
-      },
-    ];
-    return status !== 'updating' && status !== 'loading' ? (
-      <div style={{ display: 'flex' }}>{id && <Actions items={Items} />}</div>
-    ) : null;
-  };
-
-  const getRole = (className: string): BubbleListProps['role'] => ({
-    assistant: {
-      placement: 'start',
-      footer: (content, { status, key }) => (
-        <Footer content={content} status={status} id={key as string} />
-      ),
-      contentRender: (content: any, { status }) => {
-        const newContent = content.replace(/\n\n/g, '<br/><br/>');
-        return (
-          <XMarkdown
-            paragraphTag="div"
-            className={className}
-            streaming={{
-              hasNextChunk: status === 'updating',
-              enableAnimation: true,
-            }}
-          >
-            {newContent}
-          </XMarkdown>
-        );
-      },
-    },
-    user: { placement: 'end' },
-  });
 
   const senderRef = useRef<GetRef<typeof Sender>>(null);
   const listRef = useRef<BubbleListRef>(null);
 
-  const { curConversation, setActiveConversation } = useModel('conversations');
 
-  // ==================== Runtime ====================
-
-  const { onRequest, messages, isRequesting, abort, onReload } = useXChat({
-    provider: providerFactory(curConversation), // every conversation has its own provider
-    conversationKey: curConversation,
-    defaultMessages: historyMessageFactory(curConversation),
-    requestPlaceholder: () => {
-      return {
-        content: locale.noData,
-        role: 'assistant',
-      };
-    },
-    requestFallback: (_, { error, errorInfo, messageInfo }) => {
-      if (error.name === 'AbortError') {
-        return {
-          content: messageInfo?.message?.content || locale.requestAborted,
-          role: 'assistant',
-        };
-      }
-      return {
-        content: errorInfo?.error?.message || locale.requestFailed,
-        role: 'assistant',
-      };
-    },
-  });
 
   const [messageApi, contextHolder] = message.useMessage();
   const [deepThink, setDeepThink] = useState<boolean>(true);
@@ -202,6 +55,7 @@ const App = () => {
       cursor: 'end',
     });
   }, [senderRef.current]);
+
   return (
     <XProvider locale={locale} theme={themeConfig}>
       {contextHolder}
@@ -218,34 +72,12 @@ const App = () => {
               />
               <span>Ant Design X</span>
             </div>
-            <Conversations messageApi={messageApi} messages={messages} />
+            <Conversations messageApi={messageApi} />
           </div>
           <div className={styles.chat}>
             <div className={styles.chatList}>
               <Toolbars />
-              {messages?.length !== 0 && (
-                /* 🌟 消息列表 */
-                <Bubble.List
-                  ref={listRef}
-                  style={{
-                    height: 'calc(100% - 160px)',
-                  }}
-                  items={messages?.map((i) => ({
-                    ...i.message,
-                    key: i.id,
-                    status: i.status,
-                    loading: i.status === 'loading',
-                    extraInfo: i.message.extraInfo,
-                  }))}
-                  styles={{
-                    root: {
-                      marginBlockEnd: 24,
-                    },
-                    bubble: { maxWidth: 840 },
-                  }}
-                  role={getRole(markdownThemeClass)}
-                />
-              )}
+              <Messages listRef={listRef} chatContext={ChatContext} />
               <div
                 style={{ width: '100%', maxWidth: 840 }}
                 className={clsx({ [styles.startPage]: messages.length === 0 })}
