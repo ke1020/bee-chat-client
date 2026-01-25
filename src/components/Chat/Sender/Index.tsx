@@ -66,7 +66,7 @@ export default (props: AiSenderProps) => {
             }}
             placeholder={locale.placeholder}
             footer={(actionNode) => <Footer actionNode={actionNode} />}
-            autoSize={{ minRows: 3, maxRows: 6 }}
+            autoSize={{ minRows: 2, maxRows: 6 }}
         />
     </div>
 }
