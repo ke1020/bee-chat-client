@@ -1,9 +1,5 @@
-import {
-  XProvider,
-} from '@ant-design/x';
-import {
-  useXChat,
-} from '@ant-design/x-sdk';
+import { XProvider } from '@ant-design/x';
+import { useXChat } from '@ant-design/x-sdk';
 import { message } from 'antd';
 import React, { useRef } from 'react';
 import '@ant-design/x-markdown/themes/light.css';
