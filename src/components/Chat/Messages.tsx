@@ -11,7 +11,6 @@ interface MessagesProps {
     listRef: React.RefObject<BubbleListRef>;
     chatContext: React.Context<{ onReload?: ReturnType<typeof useXChat>["onReload"]; }>;
 }
-
 const Footer: React.FC<{
     id?: string;
     content: string;
@@ -85,7 +84,9 @@ export default (props: MessagesProps) => {
         <Bubble.List
             ref={props.listRef}
             style={{
-                height: 'calc(100% - 160px)',
+                //height: 'calc(100% - 160px)',
+                flex: 1,
+                overflow: 'auto'
             }}
             items={messages?.map((i) => ({
                 ...i.message,

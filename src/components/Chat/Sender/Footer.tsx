@@ -1,11 +1,13 @@
-import { OpenAIOutlined } from "@ant-design/icons";
+import { OpenAIOutlined, PaperClipOutlined } from "@ant-design/icons";
 import { Sender } from "@ant-design/x";
 import { useModel } from "@umijs/max";
-import { Flex } from "antd";
+import { Button, Flex } from "antd";
 import { useState } from "react";
 
 interface AiSenderFooterProps {
     actionNode: React.ReactNode;
+    attachmentsOpen: boolean;
+    setAttachmentsOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export default (props: AiSenderFooterProps) => {
@@ -14,6 +16,11 @@ export default (props: AiSenderFooterProps) => {
 
     return <Flex justify="space-between" align="center">
         <Flex gap="small" align="center">
+            <Button
+                type="text"
+                icon={<PaperClipOutlined style={{ fontSize: 18 }} />}
+                onClick={() => props.setAttachmentsOpen(!props.attachmentsOpen)}
+            />
             <Sender.Switch
                 value={deepThink}
                 onChange={(checked: boolean) => {

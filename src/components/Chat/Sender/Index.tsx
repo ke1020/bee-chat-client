@@ -1,10 +1,11 @@
-import { Sender, SenderProps } from "@ant-design/x";
+import { Attachments, Sender } from "@ant-design/x";
 import { BubbleListRef } from "@ant-design/x/es/bubble";
 import { useModel } from "@umijs/max";
 import { GetRef } from "antd";
 import clsx from "clsx";
-import { useEffect, useRef } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef } from "react";
 import Footer from "./Footer";
+import Header from "./Header";
 
 interface AiSenderProps {
     listRef: React.RefObject<BubbleListRef>;
@@ -15,20 +16,50 @@ export default (props: AiSenderProps) => {
     const { styles } = useModel('themes');
     const { messages, isRequesting, abort, onRequest } = useModel('messages');
     const { curConversation, setActiveConversation } = useModel('conversations');
-    const senderRef = useRef<GetRef<typeof Sender>>(null);
+    const {
+        slotConfig,
+        attachmentsOpen,
+        setAttachmentsOpen,
+        fileList,
+        setFileList
+    } = useModel('sender');
 
-    const slotConfig: SenderProps['slotConfig'] = [
-        { type: 'text', value: locale.slotTextStart },
-        {
-            type: 'select',
-            key: 'destination',
-            props: {
-                defaultValue: 'X SDK',
-                options: ['X SDK', 'X Markdown', 'Bubble'],
-            },
-        },
-        { type: 'text', value: locale.slotTextEnd },
-    ];
+    const senderRef = useRef<GetRef<typeof Sender>>(null);
+    const attachmentsRef = useRef<GetRef<typeof Attachments>>(null);
+    const pendingFilesRef = useRef<File[]>([]);
+
+    // 监听文件粘贴事件
+    const onPasteFile = useCallback((files: FileList) => {
+        const fileArray = Array.from(files);
+
+        // 如果附件面板已打开，则上传文件
+        if (attachmentsOpen && attachmentsRef.current) {
+            fileArray.forEach(file => {
+                attachmentsRef.current?.upload(file);
+            });
+        } else {
+            pendingFilesRef.current = [...pendingFilesRef.current, ...fileArray];
+            // 触发显示附件面板
+            setAttachmentsOpen(true);
+        }
+    }, [attachmentsOpen, setAttachmentsOpen]);
+
+    // 附件窗口打开之后，处理文件粘贴（在所有的 DOM 变更之后同步执行）
+    useLayoutEffect(() => {
+        if (attachmentsOpen && pendingFilesRef.current.length > 0) {
+            const uploadFiles = () => {
+                if (attachmentsRef.current) {
+                    pendingFilesRef.current.forEach(file => {
+                        attachmentsRef.current?.upload(file);
+                    });
+                    pendingFilesRef.current = [];
+                }
+            };
+
+            const rafId = requestAnimationFrame(uploadFiles);
+            return () => cancelAnimationFrame(rafId);
+        }
+    }, [attachmentsOpen]);
 
     useEffect(() => {
         senderRef.current!.focus({
@@ -37,7 +68,7 @@ export default (props: AiSenderProps) => {
     }, [senderRef.current]);
 
     return <div
-        style={{ width: '100%', maxWidth: 840 }}
+        style={{ width: '100%', maxWidth: 860, flexShrink: 0 }}
         className={clsx({ [styles.startPage]: messages.length === 0 })}
     >
         {messages.length === 0 && (
@@ -61,12 +92,20 @@ export default (props: AiSenderProps) => {
                 setActiveConversation(curConversation);
                 senderRef.current?.clear?.();
             }}
-            onCancel={() => {
-                abort();
-            }}
+            onCancel={abort}
             placeholder={locale.placeholder}
-            footer={(actionNode) => <Footer actionNode={actionNode} />}
+            header={<Header attachmentsOpen={attachmentsOpen}
+                setAttachmentsOpen={setAttachmentsOpen}
+                fileList={fileList}
+                setFileList={setFileList}
+                ref={attachmentsRef}
+            />}
+            footer={(actionNode) => <Footer actionNode={actionNode}
+                attachmentsOpen={attachmentsOpen}
+                setAttachmentsOpen={setAttachmentsOpen}
+            />}
             autoSize={{ minRows: 2, maxRows: 6 }}
+            onPasteFile={onPasteFile}
         />
     </div>
 }
