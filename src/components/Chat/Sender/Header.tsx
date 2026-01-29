@@ -30,7 +30,20 @@ export default forwardRef<GetRef<typeof Attachments>, AiSenderHeaderProps>((prop
             action="https://localhost:44300/api/upload"
             beforeUpload={() => true}
             items={props.fileList}
-            onChange={(info) => props.setFileList(info.fileList)}
+            //onChange={(info) => props.setFileList(info.fileList)}
+            onChange={(info) => {
+                // 使用函数式更新确保获取最新的状态
+                props.setFileList(prev => {
+                    // 创建一个映射，便于查找和更新
+                    const fileMap = new Map();
+                    // 
+                    prev.forEach(file => fileMap.set(file.uid, file));
+                    // 更新映射（合并新文件）
+                    info.fileList.forEach(file => fileMap.set(file.uid, file));
+                    // 返回数组格式
+                    return Array.from(fileMap.values());
+                });
+            }}
             placeholder={(type) =>
                 type === 'drop'
                     ? { title: locale.dropFileHere }

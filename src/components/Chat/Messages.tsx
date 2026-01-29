@@ -19,7 +19,7 @@ const Footer: React.FC<{
         onReload?: ReturnType<typeof useXChat>["onReload"];
     }>;
     locale: UseLocaleReturn['locale'];
-}> = ({ id, content, status, chatContext, locale }) => {
+}> = ({ id, content, status, chatContext, locale }) => { 
     const context = React.useContext(chatContext);
     const Items = [
         {

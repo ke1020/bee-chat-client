@@ -11,7 +11,7 @@ interface AiSenderFooterProps {
 }
 
 export default (props: AiSenderFooterProps) => {
-    const { locale } = useModel('locales');
+    const { locale } = useModel('locales'); 
     const [deepThink, setDeepThink] = useState<boolean>(true);
 
     return <Flex justify="space-between" align="center">

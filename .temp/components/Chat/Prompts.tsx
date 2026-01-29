@@ -1,6 +1,6 @@
 import { Prompts } from "@ant-design/x";
 import { useModel } from "@umijs/max";
-import { Spin } from "antd";
+import { Alert, Spin } from "antd";
 
 export default () => {
     const { setCurrentSkill, skills, loading, error } = useModel('skills')
@@ -10,7 +10,7 @@ export default () => {
     }
 
     if (error) {
-        return <div>Error: {error}</div>;
+        return <Alert title={error} type="error" />
     }
 
     return <div>

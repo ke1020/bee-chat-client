@@ -1,44 +1,42 @@
 import { PromptsItemType } from "@ant-design/x";
 import { SkillType } from "@ant-design/x/es/sender/interface";
 import { useEffect, useState, useCallback, useRef } from "react";
-import icons from "@/utils/icons";
+import icons from "@/assets/icons";
 import { useModel } from "@umijs/max";
 
 // 定义技能类型
 interface SkillProps {
-    skill: string;
     name: string;
+    description: string;
 }
 
 // 模拟数据 - 实际应从服务器获取
 const MOCK_SKILLS: SkillProps[] = [
-    { skill: 'asr', name: '语音识别' },
-    { skill: 'tts', name: '语音合成' },
-    { skill: 'ocr', name: '图像识别' },
-    { skill: 'translate', name: '翻译' },
-    { skill: 'transcode', name: '音视频转码' },
-    { skill: 'convert', name: '格式转换' }
+    { name: 'asr', description: '语音识别' },
+    { name: 'tts', description: '语音合成' },
+    { name: 'ocr', description: '图像识别' },
+    { name: 'translate', description: '翻译' },
+    { name: 'transcode', description: '音视频转码' },
+    { name: 'convert', description: '格式转换' }
 ];
 
 // 模拟API请求
-const fetchSkills = async (): Promise<Record<string, SkillType>> => {
+const getSkills = async (): Promise<Record<string, SkillType>> => {
     return new Promise((resolve, reject) => {
-        setTimeout(() => {
-            try {
-                const skills = MOCK_SKILLS.reduce((acc, { skill, name }) => {
-                    acc[skill] = {
-                        title: name,
-                        value: skill,
-                        closable: true,
-                    };
-                    return acc;
-                }, {} as Record<string, SkillType>);
+        try {
+            const skills = MOCK_SKILLS.reduce((acc, { name, description }) => {
+                acc[name] = {
+                    title: description,
+                    value: name,
+                    closable: true,
+                };
+                return acc;
+            }, {} as Record<string, SkillType>);
 
-                resolve(skills);
-            } catch (error) {
-                reject(new Error('处理技能数据失败'));
-            }
-        }, 1000);
+            resolve(skills);
+        } catch (error) {
+            reject(new Error('处理技能数据失败'));
+        }
     });
 };
 
@@ -50,11 +48,10 @@ interface UseSkillsReturn {
     loading: boolean;
     error: string | null;
     // skillsMap: Record<string, SkillType> | null;
-    refetch: () => Promise<void>;
+    refresh: () => Promise<void>;
 }
 
 export default (): UseSkillsReturn => {
-    const { locale } = useModel('locales');
     // 获取或设置当前技能
     const [skill, setSkill] = useState<SkillType | undefined>();
     // 获取或设置技能列表
@@ -63,6 +60,7 @@ export default (): UseSkillsReturn => {
     const [skillsMap, setSkillsMap] = useState<Record<string, SkillType> | null>(null);
     // 获取或设置载入状态
     const [loading, setLoading] = useState(false);
+    // 获取或设置错误信息
     const [error, setError] = useState<string | null>(null);
     // 标记组件是否已挂载
     const isMountedRef = useRef(true);
@@ -89,12 +87,12 @@ export default (): UseSkillsReturn => {
     /**
      * 获取技能数据
      */
-    const fetchSkillsData = useCallback(async () => {
+    const getSkillsData = useCallback(async () => {
         try {
             setLoading(true);
             setError(null);
 
-            const skills = await fetchSkills();
+            const skills = await getSkills();
 
             if (!isMountedRef.current) return;
 
@@ -110,7 +108,6 @@ export default (): UseSkillsReturn => {
 
             setSkills(skillsData);
         } catch (err) {
-            console.error(locale.fetchSkillsFailed, err);
 
             if (!isMountedRef.current) return;
 
@@ -129,20 +126,20 @@ export default (): UseSkillsReturn => {
     /**
      * 重新获取数据
      */
-    const refetch = useCallback(async () => {
-        await fetchSkillsData();
-    }, [fetchSkillsData]);
+    const refresh = useCallback(async () => {
+        await getSkillsData();
+    }, [getSkillsData]);
 
     // 初始加载
     useEffect(() => {
         isMountedRef.current = true;
 
-        fetchSkillsData();
+        getSkillsData();
 
         return () => {
             isMountedRef.current = false;
         };
-    }, [fetchSkillsData]);
+    }, [getSkillsData]);
 
     return {
         skill,
@@ -151,6 +148,6 @@ export default (): UseSkillsReturn => {
         clearSkill,
         loading,
         error,
-        refetch,
+        refresh,
     };
 }
