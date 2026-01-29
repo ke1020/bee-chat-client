@@ -1,35 +1,82 @@
 import { PromptsItemType } from "@ant-design/x";
-import { SkillType } from "@ant-design/x/es/sender/interface";
+import { SkillType, SlotConfigType } from "@ant-design/x/es/sender/interface";
 import { useEffect, useState, useCallback, useRef } from "react";
 import icons from "@/assets/icons";
 import { useModel } from "@umijs/max";
 
-// 定义技能类型
-interface SkillProps {
-    name: string;
-    description: string;
-}
 
 // 模拟数据 - 实际应从服务器获取
-const MOCK_SKILLS: SkillProps[] = [
-    { name: 'asr', description: '语音识别' },
-    { name: 'tts', description: '语音合成' },
-    { name: 'ocr', description: '图像识别' },
-    { name: 'translate', description: '翻译' },
-    { name: 'transcode', description: '音视频转码' },
-    { name: 'convert', description: '格式转换' }
+const MOCK_SKILLS: SkillType[] = [
+    { value: 'asr', title: '语音识别' },
+    { value: 'tts', title: '语音合成' },
+    { value: 'ocr', title: '图像识别' },
+    { value: 'translate', title: '翻译' },
+    { value: 'transcode', title: '音视频转码' },
+    { value: 'convert', title: '格式转换' }
 ];
+
+// 不同技能对应的 slotConfig 配置
+const skillSlotConfigs: Map<string, SlotConfigType[]> = new Map([
+    ['asr', [
+        { type: 'text', value: "将" },
+        {
+            type: 'select', key: 'language', props: {
+                defaultValue: '中文',
+                options: ['中文', '英文', '日文', '法语', '德语'],
+            }
+        },
+        { type: 'text', value: "音视频转写为" },
+        {
+            type: 'select',
+            key: 'destination',
+            props: {
+                defaultValue: 'srt',
+                options: ['srt', 'txt'],
+            },
+        }, {
+            type: 'text', value: '格式'
+        }
+    ]],
+    ['tts', [
+        { type: 'text', value: "将文本文件合成为" },
+        {
+            type: 'select', key: 'language', props: {
+                defaultValue: '中文',
+                options: ['中文', '英文', '日文', '法语', '德语'],
+            }
+        }, { type: 'text', value: "语音，使用" }, {
+            type: 'select',
+            key: 'voice',
+            props: {
+                defaultValue: 'clone',
+                options: ['clone'],
+            },
+        }, { type: 'text', value: '音色，并保存为' }, {
+            type: 'select',
+            key: 'format',
+            props: {
+                defaultValue: 'mp3',
+                options: ['mp3', 'wav'],
+            },
+        }, { type: 'text', value: '格式' }
+    ]],
+    ['translate', [
+        { type: 'text', value: "将文件翻译为" },
+        { type: 'select', key: 'language', props: { defaultValue: '中文', options: ['中文', '英文', '日文', '法语', '德语'] } },
+    ]],
+    ['convert', [
+        { type: 'text', value: "将文件转换为" },
+        { type: 'select', key: 'format', props: { defaultValue: 'mp4', options: ['mp4', 'avi', 'mkv', 'mp3', 'wav'] } },
+        { type: 'text', value: "格式" }
+    ]]
+]);
 
 // 模拟API请求
 const getSkills = async (): Promise<Record<string, SkillType>> => {
     return new Promise((resolve, reject) => {
         try {
-            const skills = MOCK_SKILLS.reduce((acc, { name, description }) => {
-                acc[name] = {
-                    title: description,
-                    value: name,
-                    closable: true,
-                };
+            const skills = MOCK_SKILLS.reduce((acc, { value, title }) => {
+                acc[value] = { value, title, closable: true };
                 return acc;
             }, {} as Record<string, SkillType>);
 
@@ -40,18 +87,20 @@ const getSkills = async (): Promise<Record<string, SkillType>> => {
     });
 };
 
-interface UseSkillsReturn {
+export interface UseSkillsReturn {
     skill: SkillType | undefined;
     setCurrentSkill: (value: string) => void;
     clearSkill: () => void;
     skills: PromptsItemType[];
     loading: boolean;
     error: string | null;
-    // skillsMap: Record<string, SkillType> | null;
+    // skillsMap: Record<string, AiSkillType> | null;
     refresh: () => Promise<void>;
 }
 
 export default (): UseSkillsReturn => {
+
+    const { setSlotConfig } = useModel('sender');
     // 获取或设置当前技能
     const [skill, setSkill] = useState<SkillType | undefined>();
     // 获取或设置技能列表
@@ -76,7 +125,15 @@ export default (): UseSkillsReturn => {
             return;
         }
 
-        setSkill(skillsMap[value]);
+        const skill = skillsMap[value];
+
+        setSkill(skill);
+
+        // 设置对应的 slotConfig
+        const slotConfigs = skillSlotConfigs.get(skill.value);
+        if (slotConfigs) {
+            setSlotConfig(slotConfigs);
+        }
     }, [skillsMap]); // 只依赖 skillsMap，不依赖 skill
 
     // 清空技能
