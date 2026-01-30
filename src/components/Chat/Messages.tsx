@@ -19,7 +19,7 @@ const Footer: React.FC<{
         onReload?: ReturnType<typeof useXChat>["onReload"];
     }>;
     locale: UseLocaleReturn['locale'];
-}> = ({ id, content, status, chatContext, locale }) => { 
+}> = ({ id, content, status, chatContext, locale }) => {
     const context = React.useContext(chatContext);
     const Items = [
         {
@@ -75,14 +75,15 @@ const getRole = (className: string,
 });
 
 export default (props: MessagesProps) => {
-    const { markdownThemeClass } = useModel('themes');
+    const { styles, markdownThemeClass } = useModel('themes');
     const { messages } = useModel('messages');
-    const { locale } = useModel('locales')
+    const { locale } = useModel('locales');
 
     return messages?.length !== 0 && (
         /* 🌟 消息列表 */
         <Bubble.List
             ref={props.listRef}
+            className={styles.bubbleList}
             style={{
                 //height: 'calc(100% - 160px)',
                 flex: 1,
@@ -98,8 +99,7 @@ export default (props: MessagesProps) => {
             styles={{
                 root: {
                     marginBlockEnd: 24,
-                },
-                bubble: { maxWidth: 840 },
+                }
             }}
             role={getRole(markdownThemeClass, props.chatContext, locale)}
         />

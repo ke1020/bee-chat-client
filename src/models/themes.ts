@@ -142,6 +142,14 @@ const useStyles = createStyles(({ token, css }, props: { themeMode: ThemeMode })
       justify-content: space-between;
       color: ${palette.colorText};
     `,
+        bubbleList: css`
+            .ant-bubble-list-scroll-box {
+                align-items: center;
+            }
+            .ant-bubble-list-scroll-content {
+                width: 840px;
+            }
+        `
     };
 });
 const THEME_SETTING_KEY = 'theme-setting';
