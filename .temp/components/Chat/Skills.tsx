@@ -1,9 +1,9 @@
-import { Prompts } from "@ant-design/x";
-import { useModel } from "@umijs/max";
-import { Alert, Spin } from "antd";
+import { Prompts } from "@ant-design/x"
+import { useModel } from "@umijs/max"
+import { Alert, Spin } from "antd"
 
 export default () => {
-    const { setCurrentSkill, skills, loading, error } = useModel('skills');
+    const { setCurrentSkill, skills, loading, error } = useModel('skills')
 
     if (loading) {
         return <Spin />

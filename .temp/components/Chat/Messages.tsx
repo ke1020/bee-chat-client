@@ -1,15 +1,18 @@
-import { useModel } from "@umijs/max";
-import { useMarkdownTheme } from "../x-markdown/utils";
-import { Actions, Bubble, BubbleListProps } from "@ant-design/x";
-import XMarkdown from "@ant-design/x-markdown";
+import { UseLocaleReturn } from "@/models/locales";
 import { SyncOutlined } from "@ant-design/icons";
+import { Actions, Bubble } from "@ant-design/x"
+import XMarkdown from "@ant-design/x-markdown";
+import { useXChat } from "@ant-design/x-sdk";
+import { BubbleListProps, BubbleListRef } from "@ant-design/x/es/bubble";
+import { useModel } from "@umijs/max"
 import React from "react";
-import { BubbleListRef } from "@ant-design/x/es/bubble";
-import { MessageInfo, useXChat, XModelMessage } from "@ant-design/x-sdk";
-import '@ant-design/x-markdown/themes/light.css';
-import '@ant-design/x-markdown/themes/dark.css';
-import { SenderRef } from "@ant-design/x/es/sender";
+import ThoughtChains from "./ThoughtChains";
+import { Divider } from "antd";
 
+interface MessagesProps {
+    listRef: React.RefObject<BubbleListRef>;
+    chatContext: React.Context<{ onReload?: ReturnType<typeof useXChat>["onReload"]; }>;
+}
 const Footer: React.FC<{
     id?: string;
     content: string;
@@ -17,7 +20,7 @@ const Footer: React.FC<{
     chatContext: React.Context<{
         onReload?: ReturnType<typeof useXChat>["onReload"];
     }>;
-    locale: any;
+    locale: UseLocaleReturn['locale'];
 }> = ({ id, content, status, chatContext, locale }) => {
     const context = React.useContext(chatContext);
     const Items = [
@@ -43,17 +46,26 @@ const Footer: React.FC<{
     ) : null;
 };
 
-const getRole = (className: string, chatContext: React.Context<{
-    onReload?: ReturnType<typeof useXChat>["onReload"];
-}>, locale: any): BubbleListProps['role'] => ({
+const getRole = (className: string,
+    chatContext: React.Context<{
+        onReload?: ReturnType<typeof useXChat>["onReload"];
+    }>,
+    locale: UseLocaleReturn['locale']
+): BubbleListProps['role'] => ({
     assistant: {
         placement: 'start',
+        styles: {
+            content: {
+                backgroundColor: 'transparent'
+            }
+        },
         footer: (content, { status, key }) => (
             <Footer content={content} status={status} id={key as string} chatContext={chatContext} locale={locale} />
         ),
+        header: <ThoughtChains />,
         contentRender: (content: any, { status }) => {
             const newContent = content.replace(/\n\n/g, '<br/><br/>');
-            return (
+            return (<><Divider titlePlacement="start" plain>Result</Divider>
                 <XMarkdown
                     paragraphTag="div"
                     className={className}
@@ -63,24 +75,15 @@ const getRole = (className: string, chatContext: React.Context<{
                     }}
                 >
                     {newContent}
-                </XMarkdown>
+                </XMarkdown></>
             );
         },
     },
     user: { placement: 'end' },
 });
 
-interface MessagesProps {
-    listRef: React.RefObject<BubbleListRef>;
-    senderRef: React.RefObject<SenderRef>;
-    chatContext: React.Context<{
-        onReload?: ReturnType<typeof useXChat>["onReload"];
-    }>;
-}
-
 export default (props: MessagesProps) => {
-
-    const [className] = useMarkdownTheme();
+    const { styles, markdownThemeClass } = useModel('themes');
     const { messages } = useModel('messages');
     const { locale } = useModel('locales');
 
@@ -88,13 +91,13 @@ export default (props: MessagesProps) => {
         /* 🌟 消息列表 */
         <Bubble.List
             ref={props.listRef}
+            className={styles.bubbleList}
             style={{
-                //height: `calc(100% - 160px)`,
-                // flex: 1 表示占据剩余空间 （父元素需 { display: 'flex', flexDirection: 'column', height: '100vh' }）
+                //height: 'calc(100% - 160px)',
                 flex: 1,
                 overflow: 'auto'
             }}
-            items={messages?.map((i: MessageInfo<XModelMessage>) => ({
+            items={messages?.map((i) => ({
                 ...i.message,
                 key: i.id,
                 status: i.status,
@@ -103,11 +106,10 @@ export default (props: MessagesProps) => {
             }))}
             styles={{
                 root: {
-                    marginBlockEnd: 12,
-                },
-                bubble: { maxWidth: 840 },
+                    marginBlockEnd: 24,
+                }
             }}
-            role={getRole(className, props.chatContext, locale)}
+            role={getRole(markdownThemeClass, props.chatContext, locale)}
         />
     )
 }

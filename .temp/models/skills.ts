@@ -18,14 +18,14 @@ const MOCK_SKILLS: SkillType[] = [
 // 不同技能对应的 slotConfig 配置
 const skillSlotConfigs: Map<string, SlotConfigType[]> = new Map([
     ['asr', [
-        { type: 'text', value: "将" },
+        { type: 'text', value: "将附件中的" },
         {
             type: 'select', key: 'language', props: {
                 defaultValue: '中文',
                 options: ['中文', '英文', '日文', '法语', '德语'],
             }
         },
-        { type: 'text', value: "音视频转写为" },
+        { type: 'text', value: "音视频文件转写为" },
         {
             type: 'select',
             key: 'destination',
@@ -38,7 +38,7 @@ const skillSlotConfigs: Map<string, SlotConfigType[]> = new Map([
         }
     ]],
     ['tts', [
-        { type: 'text', value: "将文本文件合成为" },
+        { type: 'text', value: "将附件中的文本文件合成为" },
         {
             type: 'select', key: 'language', props: {
                 defaultValue: '中文',
@@ -61,11 +61,11 @@ const skillSlotConfigs: Map<string, SlotConfigType[]> = new Map([
         }, { type: 'text', value: '格式' }
     ]],
     ['translate', [
-        { type: 'text', value: "将文件翻译为" },
+        { type: 'text', value: "将附件中的文本文件内容翻译为" },
         { type: 'select', key: 'language', props: { defaultValue: '中文', options: ['中文', '英文', '日文', '法语', '德语'] } },
     ]],
     ['convert', [
-        { type: 'text', value: "将文件转换为" },
+        { type: 'text', value: "将附件中的文件转换为" },
         { type: 'select', key: 'format', props: { defaultValue: 'mp4', options: ['mp4', 'avi', 'mkv', 'mp3', 'wav'] } },
         { type: 'text', value: "格式" }
     ]]
